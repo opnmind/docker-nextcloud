@@ -4,6 +4,11 @@ services:
   db:
     image: mariadb
     command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_DATABASE_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     restart: always
     volumes:
       - db:/var/lib/mysql
@@ -15,10 +20,16 @@ services:
   app:
     build: ./app
     restart: always
+    environment:
+      NEXTCLOUD_ADMIN_USER: ${NEXTCLOUD_ADMIN_USER}
+      NEXTCLOUD_ADMIN_PASSWORD: ${NEXTCLOUD_ADMIN_PASSWORD}
+      MYSQL_HOST: db
+      MYSQL_ROOT_PASSWORD: ${MYSQL_DATABASE_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     volumes:
       - nextcloud:/var/www/html
-    environment:
-      - MYSQL_HOST=db
     depends_on:
       - db
       - redis
@@ -50,6 +61,8 @@ services:
     ports:
       - 8080:80
       - 8443:443
+    environment:
+      VIRTUAL_HOST: ${VIRTUAL_HOST}
     volumes:
       - certs:/etc/nginx/certs:ro
       - vhost.d:/etc/nginx/vhost.d
@@ -63,6 +76,12 @@ services:
   omgwtfssl:
     image: paulczar/omgwtfssl
     restart: "no"
+    environment:
+      SSL_SUBJECT: ${SSL_SUBJECT}
+      CA_SUBJECT: ${CA_SUBJECT}
+      SSL_KEY: ${SSL_KEY}
+      SSL_CSR: ${SSL_CSR}
+      SSL_CERT: ${SSL_CERT}
     volumes:
       - certs:/certs
     networks:
