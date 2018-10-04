@@ -1,4 +1,4 @@
-version: '3'
+version: '2'
 
 services:
   db:
@@ -8,7 +8,7 @@ services:
     volumes:
       - db:/var/lib/mysql
     env_file:
-      - db.env
+      - .env
 
   redis:
     image: redis
@@ -22,7 +22,7 @@ services:
     environment:
       - MYSQL_HOST=db
     env_file:
-      - db.env
+      - .env
     depends_on:
       - db
       - redis
@@ -33,7 +33,7 @@ services:
     volumes:
       - nextcloud:/var/www/html:ro
     env_file:
-      - db.env
+      - .env
     depends_on:
       - app
     networks:
@@ -53,6 +53,8 @@ services:
   proxy:
     build: ./proxy
     restart: always
+    environment:
+      - VIRTUAL_HOST=cloud.bluebox.home
     ports:
       - 8080:80
       - 8443:443
@@ -72,7 +74,7 @@ services:
     volumes:
       - certs:/certs
     env_file:
-      - db.env
+      - .env
     networks:
       - proxy-tier
 
